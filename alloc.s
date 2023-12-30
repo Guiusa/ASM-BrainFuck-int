@@ -244,13 +244,13 @@ mergeNodes:
 	movq %rax, -8(%rsp)
 	
 	while:
+		cmpq TopoHeap, %rdi
+		je fim
+
 		movq -8(%rsp), %rdi # ponteiro nodo p1
 		movq (%rdi), %rbx # ocp de p1
 		movq 8(%rdi), %rcx # size de p1
 	
-		cmpq TopoHeap, %rdi
-		je fim
-
 		cmpq $0, %rbx
 		jne iter
 		
