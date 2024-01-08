@@ -4,8 +4,8 @@ PROG = bf
 
 all: $(PROG)
 
-$(PROG): main.o alloc.o string.o
-	$(CC) $(CFLAGS) -o $(PROG) main.o alloc.o string.o
+$(PROG): main.o alloc.o io.o
+	$(CC) $(CFLAGS) -o $(PROG) main.o alloc.o io.o
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c -o main.o
@@ -13,8 +13,8 @@ main.o: main.c
 alloc.o: alloc.s
 	as alloc.s -o alloc.o -g
 
-string.o: string.s
-	as string.s -o string.o -g
+io.o: io.s
+	as io.s -o io.o -g
 
 purge:
 	rm -rf *.o  $(PROG)
