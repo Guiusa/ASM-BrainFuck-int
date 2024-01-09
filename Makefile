@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -no-pie -g
+CFLAGS = -g -Wall -no-pie
 PROG = bf
 
 all: $(PROG)

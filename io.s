@@ -1,6 +1,6 @@
 .section .data
-.section .bss
-	BUFF: .space 100
+	.globl BUFF
+	BUFF: .fill 100
 .section .text
 .globl printStr
 .globl readStr
@@ -23,6 +23,7 @@ printStr:
 	jmp while_printStr
 	end_while_printStr:
 
+	movq %rdi, %rsi
 	movq $1, %rax		# syscall write
 	movq $1, %rdi		# valor 1 stdout
 	movq %rbx, %rdx
@@ -36,27 +37,27 @@ readStr:
 	movq %rsp, %rbp
 	subq $16, %rsp
 
-	movq %rdi, 8(%rsp) # buffer address
-	movq %rsi, 16(%rsp) # buffer size
+	movq %rdi, -8(%rbp) # buffer address
+	movq %rsi, -16(%rbp) # buffer size
 
 	movq $100, %rdx
-	movq BUFF, %rsi
+	movq $BUFF, %rsi
 	movq $0, %rdi
 	movq $0, %rax
 	syscall # reads 100 bytes from stdin, should check if stdin has too much B
 
-	#movq $BUFF, %r8
-	#movq 8(%rsp), %rsi
-	#readStr_while:
-	#mov (%r8), %cl
-	#mov %cl, (%rsi)
-	#addq $1, %r8
-	#addq $1, %rsi
+	movq $BUFF, %r8
+	movq -8(%rbp), %rsi
+	readStr_while:
+	mov (%r8), %cl
+	mov %cl, (%rsi)
+	addq $1, %r8
+	addq $1, %rsi
 
-	#cmp $0, %cl
-	#je end_readStr_while
-	#jmp readStr_while
-	#end_readStr_while:
+	cmp $0, %cl
+	je end_readStr_while
+	jmp readStr_while
+	end_readStr_while:
 
 	addq $16, %rsp
 	popq %rbp
