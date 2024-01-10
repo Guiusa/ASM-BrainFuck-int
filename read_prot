@@ -1,0 +1,17 @@
+var dBuffAd 
+
+var dBuffCnt = 0
+read_BUFF:
+	read syscall (BUFF, stdin, size)
+
+	
+	var buff = BUFF
+	var i = 0;
+	while_readStr:
+		if BUFF[i] == '\n'
+			jmp end_readStr_while
+		
+		dBuffAd = BUFF[i]
+		
+
+	end_readStr_while:
