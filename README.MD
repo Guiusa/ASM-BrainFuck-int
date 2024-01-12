@@ -30,3 +30,16 @@ value should be set to 1
 %rdi - pointer to file to read from. Stdin is 0
 
 %rdx - size of buffer to be read
+
+# DUMB MISTAKES THAT TOOK ME A LOT OF TIME
+
+## Low byte registers being located in literal register space
+
+I forgot that %cl it equivalent to the lower byte of %rcx, so if i do:
+movq (%rcx), %cl
+it takes the value at the address stored in rcx and moves it to the last byte of
+rcx itself, making the function a complete mess and an entire week lost.
+
+This problem was observed when i was trying to implement readStr function and 
+took me A LOT of time to identify. I'm seeing that programming in assembly 
+withou gdb is completely impossible.
