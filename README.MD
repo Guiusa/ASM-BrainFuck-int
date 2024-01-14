@@ -43,3 +43,17 @@ rcx itself, making the function a complete mess and an entire week lost.
 This problem was observed when i was trying to implement readStr function and 
 took me A LOT of time to identify. I'm seeing that programming in assembly 
 withou gdb is completely impossible.
+
+
+# INTERESTING THINGS I LEARNED
+## fopen and open
+fopen is an abstraction of syscall open.
+
+open returns an small integer that represents an index to the stream table in
+the process, it's possible to use that return value in %rdi when calling read
+syscall. 
+
+I'm really confused by the fact that fopen doesn't return the file
+descriptor open syscall does, but a pointer to a FILE variable. I don't get what
+is this FILE type or why fopen doesn't simply operates with the file descriptor
+directly, maybe is for safety reasons.

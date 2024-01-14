@@ -2,12 +2,18 @@
 	.globl BUFF
 	BUFF: .fill 512
 	BUFF_S: .quad 512
-	EOF: .word 255
+
 .section .text
 .globl printStr
 .globl readStr
 .globl returnBuff
+.globl openFile
+.globl closeFile
 
+
+
+# void printStr(char* s) #######################################################
+# calculates s size and uses write syscall to copy it to stdout ################
 printStr:
 	push %rbp
 	movq %rsp, %rbp
@@ -33,12 +39,17 @@ printStr:
 
 	popq %rbp
 	ret
+################################################################################
 
+
+
+# void readBUFF() ##############################################################
+# reads BUFF_S characters to BUFF ##############################################
 readBUFF:
 	pushq %rbp
 	movq %rsp, %rbp
 
-	movq $0, %rdi
+	movq 16(%rbp), %rdi
 	leaq BUFF, %rsi
 	movq BUFF_S, %rdx
 	movq $0, %rax
@@ -46,7 +57,12 @@ readBUFF:
 
 	popq %rbp
 	ret
+################################################################################
 
+
+
+# int readStr(char* str, long s) ###############################################
+# safely copies s bytes from entry to str pointer ##############################
 readStr:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -60,7 +76,9 @@ readStr:
 	readStr_read_BUFF:
 		movq %rax, -8(%rbp)
 	# READING IN BUFFER ########################################################	
+		pushq %rdx
 		call readBUFF			
+		popq %rdx
 	# BUFF BYTES COPIED TO DESTINY BUFFER ######################################
 		movq -8(%rbp), %rax  	# current destiny buffer pointer
 		leaq BUFF, %rcx 		# BUFF pointer
@@ -92,12 +110,43 @@ readStr:
 	
 			movq $1, %rax
 			movq %r8, %rsi
-			movq $0, %rdi
 			movq $1, %rdx
 			syscall
 
 		readStr_end_iter_BUFF:
 	movq %rbx, %rax
 	addq $16, %rsp
+	popq %rbp
+	ret
+################################################################################
+
+
+
+# int openFile(char* name) #####################################################
+# opens a file in the next file descriptor #####################################
+openFile:
+	pushq %rbp
+	movq %rsp, %rbp
+
+	movq $2, %rax # syscall open
+	movq $0, %rsi # RO option
+	movq $0, %rdx # won't create the file, so irrelevant
+	syscall
+
+	popq %rbp
+	ret
+################################################################################
+
+
+
+
+# void closeFile(fd fDesc) #####################################################
+closeFile:
+	pushq %rbp
+	movq %rsp, %rbp
+
+	movq $3, %rax
+	syscall
+
 	popq %rbp
 	ret
