@@ -1,6 +1,7 @@
 #include "alloc.h"
 #include "io.h"
 #define ENTRY_SIZE 5000
+#define STRIP_SIZE 10000
 
 void showUsage(){
 	printStr("ERROR: Incorrect number of arguments\nUSAGE: >~ bf <source_file_name>\n");
@@ -8,35 +9,39 @@ void showUsage(){
 
 int main (int argc, char** argv) {
 	firstAlloc();
-	char* a = (char *) allocBlk(ENTRY_SIZE);
+	char* file = (char *) allocBlk(ENTRY_SIZE);
 	int r = 0;
-	fd k;
-
+	fd file_p;
+// tries to read file in argv[1], then read from stdin #########################
 	if(argc > 2){
 		showUsage();
 		return 1;
 	} else if(argc == 2) {
-		k = openFile(argv[1]);
-		if (!k){
+		file_p = openFile(argv[1]);
+		if (!file_p){
 			printStr("Impossible to open file ");
 			printStr(argv[1]);
 			printStr("\n");
 			r = 1;
 			goto free_all;
 		}
-		if (!readStr(a, ENTRY_SIZE, k)){
+		if (!readStr(file, ENTRY_SIZE, file_p)){
 			printStr("Impossible to read stream from file\n");
 			r = 2;
 			goto free_all;
 		}
-	} else readStr(a, ENTRY_SIZE, stdin);
+	} else readStr(file, ENTRY_SIZE, stdin);
+//##############################################################################
+
+	char* strip = (char *) allocBlk(STRIP_SIZE);
+	char* print_buff = (char *) allocBlk(100);
 	
-	printStr(a);
 
 
 	free_all:
-	if(k) closeFile(k);
-	freeBlk(a);
+	if(strip) freeBlk(strip);
+	if(file_p) closeFile(file_p);
+	freeBlk(file);
 	lastAlloc();
 	return r;
 }

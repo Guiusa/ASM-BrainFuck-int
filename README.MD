@@ -57,3 +57,14 @@ I'm really confused by the fact that fopen doesn't return the file
 descriptor open syscall does, but a pointer to a FILE variable. I don't get what
 is this FILE type or why fopen doesn't simply operates with the file descriptor
 directly, maybe is for safety reasons.
+
+## pile implemented in assembly
+
+Because of "[" and "]" operators in BrainF*ck, it is necessary to have some sort
+of pile to save addresses at "[" and to return to them in "]", so i implemented
+a push and a pop function in interpreter.s that operates over a PILE variable 
+statically allocated at data section.
+
+These functions won't be accessible from external files as they are meant to be
+called inside execute_bf function, which is accessbile in every interpreter lib
+import.
