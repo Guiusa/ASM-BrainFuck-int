@@ -68,3 +68,103 @@ statically allocated at data section.
 These functions won't be accessible from external files as they are meant to be
 called inside execute_bf function, which is accessbile in every interpreter lib
 import.
+
+## About switch statement and lookup tables
+
+### Sequential possibilities
+If you got something like a sequential switch case, as follows:
+
+```
+switch(x){
+	case 0:
+		do_case_0();
+	case 1:
+		do_case_1();
+	case 2:
+		do_case_2();
+	...
+	...
+	case 9:
+		do_case_9();
+	default:
+}
+```
+
+This could be transformed in a lookup table when compiled into assembly. The 
+compiler will create a label's array that could be simplified as:
+
+```
+ARR = [do_case_0(), do_case_1(), ..., do_case_9()];
+```
+
+With this, you could use the address of the array and x entry as an offset or
+index to the label you should jump to. It's very efficient because you don't 
+compare the entry to each one of the possible cases, instead, you use the value
+itself to simply jump to the correct part of the executable. Futhermore, the 
+inconditional jump instruction is one of the fastest instructions in x86-64
+architeture, as it takes just 3 or something cicles of the processor to finish 
+it's execution.
+
+### Discrete possibilities
+In this project's case, the switch statement isn't sequential as the previous 
+example, instead, what will be implemented is a lookup table equivalent to the
+following code:
+
+```
+switch(BrainFuck_instruction){
+	case 43:				// char(43) is '+'
+		summ();
+	case 45:				// char(45) is '-'
+		subtract();
+	case 46:				// char(46) is '.'
+		print();
+	case 60:				// char(60) is '<'
+		pointer_left();
+	case 62:				// char(62) is '>'
+		pointer_right();
+	case 91:				// char(91) is '['
+		push_address();
+	case 93:				// char(93) is ']'
+		pop_address();
+	default:
+}
+```
+
+So, how can you translate the entry as an index to a label array, as it's done
+in sequential case?
+
+I stumbled in this problem and thought about it for an entire day, i came with 
+the ideia do write it in C and see how the compiler treats it. What i discovered
+is that you should use a lookup table in this case too, but with some extra
+steps:
+
+1. subtract 43 from the entry, so the lowest entry is correspondent to index 0 
+of the array. Anything negative that results from this operation should be 
+considered as default case.
+
+2. The biggest entry is 93, when you subtract 43 it results in 50. So you also 
+have to compare the result of the subtraction to 50, anything above 50 should 
+also be treated as default case
+
+3. Now you have an index to the lookup table, it's size is equivalent to 93-43,
+which are the biggest and lowest possible entries. The lookup table could be 
+represented as follows:
+
+| INDEX | LABEL             	|
+|-------|-----------------------|
+| 0		| summ()  				|
+| 1     | DEFAULT				|
+| 2		| subtract()			|
+| 3-16  | DEFAULT				|
+| 17    | pointer_left()		|
+| 18    | DEFAULT				|
+| 19	| pointer_right			|
+| 20-47 | DEFAULT				|
+| 48	| push_address()		|
+| 49	| DEFAULT				|
+| 50	| pop_address()			|
+
+
+So, you need more memory to fill all the "holes" in the table with default label
+, but it should still be much more efficient then just comparing the entry with
+every possibility
